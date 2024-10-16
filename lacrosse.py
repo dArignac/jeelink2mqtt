@@ -26,13 +26,17 @@ class LaCrosse:
             log.debug(f"LaCrosse: Unknown message received {message}")
             return
 
-        id = int(values[2])
-        batteryNew = int(values[3]) >> 7
-        # type = int(values[3]) & 0x7F
-        temperature = int(values[4]) * 256 + int(values[5])
-        temperature = (float(temperature) - 1000) / 10
-        batteryWeak = int(values[6]) >> 7
-        humidity = int(values[6]) & 0x7F
+        try:
+            id = int(values[2])
+            batteryNew = int(values[3]) >> 7
+            # type = int(values[3]) & 0x7F
+            temperature = int(values[4]) * 256 + int(values[5])
+            temperature = (float(temperature) - 1000) / 10
+            batteryWeak = int(values[6]) >> 7
+            humidity = int(values[6]) & 0x7F
+        except Exception as err:
+            log.debug(f"LaCrosse: Illegal message received {message}, {err}")
+            return
 
         # log.debug(
         #     f"LaCrosse: Sensor reporting: ID {id}, Temperature {temperature}, Humidity {humidity}, Battery new {batteryNew}, Battery weak {batteryWeak}"
