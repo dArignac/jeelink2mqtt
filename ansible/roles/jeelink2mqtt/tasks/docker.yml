@@ -1,0 +1,73 @@
+---
+- name: "Create dir for jeelink2mqtt"
+  file:
+    path: "{{item}}"
+    state: directory
+    owner: "{{JEELINK2MQTT_USER}}"
+    group: "{{JEELINK2MQTT_GROUP}}"
+    mode: 0755
+  when: JEELINK2MQTT_IN_DOCKER
+  with_items:
+  - "{{JEELINK2MQTT_STACK}}/git"
+  - "{{JEELINK2MQTT_STACK}}/jeelink2mqtt"
+  tags:
+    - dockerservices
+    - jeelink2mqtt
+    - j2m_docker
+
+- name: Create docker files
+  template:
+    src: "docker/{{ item }}.j2"
+    dest: "{{ JEELINK2MQTT_STACK }}/{{ item }}"
+    owner: "{{ Z2M_USER }}"
+    group: "{{ Z2M_GROUP }}"
+    mode: "0770"
+  when: JEELINK2MQTT_IN_DOCKER
+  with_items:
+    - "docker-compose.yml"
+    - "Dockerfile"
+    - "run.sh"
+  tags:
+    - dockerservices
+    - jeelink2mqtt
+    - j2m_docker
+
+- name: "Git clone jeelink2mqtt"
+  git:
+    repo: "{{ JEELINK2MQTT_REPO }}"
+    dest: "{{ JEELINK2MQTT_STACK }}/git"
+    version: "{{ JEELINK2MQTT_VERSION }}"
+#    depth: 1
+    update: yes
+    force: yes
+  when: JEELINK2MQTT_IN_DOCKER
+  tags:
+    - jeelink2mqtt
+    - jeelink2mqtt_git
+#    - j2m_docker
+
+- name: build docker image (this takes quite some time)
+  shell: "{{DOCKER_COMPOSE}} build"
+  args:
+    chdir: "{{ JEELINK2MQTT_STACK }}"
+  when: 
+    - JEELINK2MQTT_IN_DOCKER
+  tags:
+    - jeelink2mqtt
+    - jeelink2mqtt_git
+#    - j2m_docker
+
+- name: Create config file for jeelink2mqtt
+  template:
+    src: "etc/config.ini.j2"
+    dest: "{{ JEELINK2MQTT_STACK }}/config.ini"
+    owner: "root"
+    group: "root"
+    mode: "0644"
+  when: JEELINK2MQTT_IN_DOCKER
+  tags:
+    - dockerservices
+    - jeelink2mqtt
+    - jeelink2mqtt_config
+
+

@@ -1,0 +1,4 @@
+#!/bin/bash
+pushd {{JEELINK2MQTT_PATH}}
+exec /usr/local/bin/pipenv run python jeelink2mqtt.py --jeelink /dev/ttyUSB0 --config-file {{ JEELINK2MQTT_CONFIG }} --mqtt {{ JEELINK2MQTT_MQTT_HOST }}
+popd
