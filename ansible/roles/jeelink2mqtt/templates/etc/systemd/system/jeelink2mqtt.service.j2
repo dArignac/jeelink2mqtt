@@ -1,0 +1,29 @@
+# {{ ansible_managed }}
+
+[Unit]
+Description=Service for jeelink2mqtt 
+{% if JEELINK2MQTT_IN_DOCKER -%}
+AssertPathExists={{ JEELINK2MQTT_STACK }}
+{% else -%}
+AssertPathExists={{ JEELINK2MQTT_PATH }}
+{% endif -%}
+StartLimitIntervalSec=60
+
+[Service] 
+User={{ JEELINK2MQTT_USER }}
+Group={{ JEELINK2MQTT_GROUP }}
+{% if JEELINK2MQTT_IN_DOCKER -%}
+WorkingDirectory={{ JEELINK2MQTT_STACK }}
+ExecStart=/usr/bin/{{DOCKER_COMPOSE}} up
+ExecStop=/usr/bin/{{DOCKER_COMPOSE}} down
+{% else -%}
+WorkingDirectory={{ JEELINK2MQTT_PATH }}
+ExecStart=/usr/local/bin/pipenv run python jeelink2mqtt.py --jeelink {{ JEELINK2MQTT_DEVICE }} --config-file {{ JEELINK2MQTT_CONFIG }} --mqtt {{ JEELINK2MQTT_MQTT_HOST }}
+# ExecStop=
+{% endif -%}
+TimeoutStartSec=0
+Restart=on-failure
+StartLimitBurst=3
+
+[Install]
+WantedBy=multi-user.target

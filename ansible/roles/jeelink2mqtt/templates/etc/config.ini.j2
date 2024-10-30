@@ -1,0 +1,8 @@
+# {{ ansible_managed }}
+
+{% for dict_item in JEELINK2MQTT_SENSORS %}
+{% for key, value in dict_item.items() %}
+[{{ key }}]
+id={{ value }}
+{% endfor %}
+{% endfor %}

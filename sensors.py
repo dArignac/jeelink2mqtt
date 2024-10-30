@@ -29,6 +29,9 @@ class Sensor(HomeAssistantSensor):
         self._update("batteryWeak", values["batteryWeak"])
         self._update("temperature", values["temperature"])
         self._update("humidity", values["humidity"])
+        if self.batteryNew and not self.is_whitelisted and not self.logged_new:
+            self.log.info(f"New device found {self.id}: {self.temperature}, {self.humidity}")
+            self.logged_new = True # do not SPAM the logs
 
         # log new devices that usually have a new battery set
         if self.batteryNew and not self.is_whitelisted and not self.logged_new:
