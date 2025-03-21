@@ -1,0 +1,12 @@
+---
+- name: Restart jeelink2mqtt
+  systemd:
+    name: "{{ JEELINK2MQTT_SERVICE }}"
+    state: restarted
+    enabled: yes
+    masked: no
+    daemon_reload: yes
+  register: jeelink2mqtt_reload
+  when: ENABLE_JEELINK2MQTT
+  tags:
+    - jeelink2mqtt

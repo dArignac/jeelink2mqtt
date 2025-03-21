@@ -1,0 +1,2 @@
+
+SUBSYSTEM=="tty", ATTRS{idVendor}=="{{JEELINK_VID}}", ATTRS{idProduct}=="{{JEELINK_PID}}", ATTRS{serial}=="{{JEELINK_SERNUM}}", MODE="666", GROUP="dialout", SYMLINK+="jeelink"

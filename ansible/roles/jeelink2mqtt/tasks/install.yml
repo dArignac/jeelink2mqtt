@@ -1,0 +1,25 @@
+---
+
+- name: Install jeelink2mqtt nativly
+  include_tasks:
+    file: native.yml
+  when: ENABLE_JEELINK2MQTT and not JEELINK2MQTT_IN_DOCKER
+  tags:
+    - jeelink2mqtt
+    - jeelink2mqtt_git
+
+- name: Install jeelink2mqtt with docker
+  include_tasks:
+    file: docker.yml
+  when: ENABLE_JEELINK2MQTT and JEELINK2MQTT_IN_DOCKER
+  tags:
+    - jeelink2mqtt
+    - j2m_docker
+    - jeelink2mqtt_git
+
+- name: Install jeelink2mqtt (common stuff)
+  include_tasks:
+    file: common.yml
+  when: ENABLE_JEELINK2MQTT
+  tags:
+    - jeelink2mqtt
