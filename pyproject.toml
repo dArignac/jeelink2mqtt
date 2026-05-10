@@ -1,0 +1,11 @@
+[project]
+name = "jeelink2mqtt"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "asyncio>=4.0.0",
+    "paho-mqtt>=2.1.0",
+    "pyserial-asyncio>=0.6",
+]
