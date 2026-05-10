@@ -22,8 +22,8 @@ class Serial:
             self.reader, self.writer = await serial_asyncio.open_serial_connection(
                 url=self.jeelink_address, baudrate=57600
             )
-        except IOError:
-            self.log.error("Can not open USB device!")
+        except IOError as e:
+            self.log.error("Can not open USB device! %s", e)
             exit("No device")
 
         # wait till jeelink has settled to ensure init sequence will be received
