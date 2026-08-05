@@ -1,0 +1,28 @@
+# {{ ansible_managed }}
+FROM ubuntu:jammy
+
+###############################################################################
+# Next is required to avoid hang if tzdata is setup later
+# Not sure why it works here and later it does not
+# Note: /etc/timezone will be passed at runtime via a volume
+RUN echo UTC >/etc/timezone \
+&& DEBIAN_FRONTEND='noninteractive' apt-get -q -y update \
+&& DEBIAN_FRONTEND='noninteractive' apt-get -q -y dist-upgrade \
+&& DEBIAN_FRONTEND='noninteractive' apt-get -q -y install tzdata \
+python3 python3-urllib3 python3-pip python-is-python3 \
+&& DEBIAN_FRONTEND='noninteractive' apt-get -q -y clean \
+&& DEBIAN_FRONTEND='noninteractive' apt-get -q -y autoremove
+
+RUN mkdir -p {{JEELINK2MQTT_PATH}}
+WORKDIR {{JEELINK2MQTT_PATH}}
+# We now do the git clone from ansible and copy the results to here
+COPY git/*.py ./
+COPY git/Pipfile* ./
+
+RUN pip3 install pipenv && pipenv sync
+
+###############################################################################
+COPY run.sh /
+CMD ["/run.sh"]
+
+# eof

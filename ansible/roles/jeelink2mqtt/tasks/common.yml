@@ -1,0 +1,35 @@
+---
+- name: Create udev rule for Jeelink
+  template:
+    src: etc/udev/rules.d/98-jeelink.rules.j2
+    dest: /etc/udev/rules.d/98-jeelink.rules
+    owner: root
+    group: root
+    mode: "0644"
+  when: ENABLE_JEELINK2MQTT or JEELINK2MQTT_IN_DOCKER
+  tags:
+    - jeelink2mqtt
+
+- name: Create systemd files for jeelink2mqtt
+  template:
+    src: "etc/systemd/system/jeelink2mqtt.service.j2"
+    dest: "/etc/systemd/system/{{ JEELINK2MQTT_SERVICE }}"
+    owner: "root"
+    group: "root"
+    mode: "0644"
+  when: ENABLE_JEELINK2MQTT or JEELINK2MQTT_IN_DOCKER
+  tags:
+    - jeelink2mqtt
+    - jeelink2mqtt_systemd
+
+- name: Restart jeelink2mqtt
+  systemd:
+    name: "{{ JEELINK2MQTT_SERVICE }}"
+    state: restarted
+    enabled: yes
+    masked: no
+    daemon_reload: yes
+  register: jeelink2mqtt_reload
+  when: ENABLE_JEELINK2MQTT or JEELINK2MQTT_IN_DOCKER
+  tags:
+    - jeelink2mqtt

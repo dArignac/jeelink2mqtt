@@ -1,0 +1,131 @@
+---
+- name: "Install dependend software via apt for jeelink2mqtt"
+  apt:
+    pkg: "{{ item }}"
+    state: present
+    cache_valid_time: 600
+  with_items:
+     "{{ JEELINK2MQTT_DEPENDENCY }}"
+  when: ENABLE_JEELINK2MQTT
+  tags:
+    - jeelink2mqtt
+
+- name: "Install pipenv via apt"
+  apt:
+    pkg: pipenv
+    state: present
+    cache_valid_time: 600
+  when: ENABLE_JEELINK2MQTT and ansible_facts.distribution_major_version|int >= 24
+  tags:
+    - jeelink2mqtt
+
+- name: "Install pipenv via pip"
+  pip:
+    name: pipenv
+    state: latest
+    executable: pip3
+    break_system_packages: true
+  when: ENABLE_JEELINK2MQTT and ansible_facts.distribution_major_version|int <= 22
+  tags:
+    - jeelink2mqtt
+
+- name: "Create dir for jeelink2mqtt"
+  file:
+    path: "{{JEELINK2MQTT_PATH}}"
+    state: directory
+    owner: "{{JEELINK2MQTT_USER}}"
+    group: "{{JEELINK2MQTT_GROUP}}"
+    mode: 0755
+  when: ENABLE_JEELINK2MQTT
+  tags:
+    - jeelink2mqtt
+
+- name: Fix git access rights for jeelink2mqtt dir
+  command: "git config --global --add safe.directory {{ JEELINK2MQTT_PATH }}"
+  args:
+    chdir: "{{ JEELINK2MQTT_PATH }}"
+  when: ENABLE_JEELINK2MQTT
+  tags:
+    - jeelink2mqtt
+    - jeelink2mqtt_git
+
+- name: "Git clone jeelink2mqtt"
+  git:
+    repo: "{{ JEELINK2MQTT_REPO }}"
+    dest: "{{ JEELINK2MQTT_PATH }}"
+    version: "{{ JEELINK2MQTT_VERSION }}"
+    depth: 1
+    update: yes
+    force: yes
+  when: ENABLE_JEELINK2MQTT
+  tags:
+    - jeelink2mqtt
+    - jeelink2mqtt_git
+
+- name: Fix access rights to Pipfile for jeelink2mqtt
+  file:
+    path: "{{ JEELINK2MQTT_PATH }}/Pipfile"
+    owner: "{{JEELINK2MQTT_USER}}"
+    group: "{{JEELINK2MQTT_GROUP}}"
+  when: ENABLE_JEELINK2MQTT
+  tags:
+    - jeelink2mqtt
+    - jeelink2mqtt_git
+
+- name: Restore dependencies via pipenv for jeelink2mqtt
+  command: "sudo -u {{JEELINK2MQTT_USER}} pipenv sync"
+  args:
+    chdir: "{{ JEELINK2MQTT_PATH }}"
+  when: ENABLE_JEELINK2MQTT
+  tags:
+    - jeelink2mqtt
+    - jeelink2mqtt_git
+
+- name: Create config file for jeelink2mqtt
+  template:
+    src: "etc/config.ini.j2"
+    dest: "{{ JEELINK2MQTT_CONFIG }}"
+    owner: "root"
+    group: "root"
+    mode: "0644"
+  when: ENABLE_JEELINK2MQTT
+  tags:
+    - jeelink2mqtt
+    - jeelink2mqtt_config
+
+- name: Create a vscode workspace file if it does not exist
+  copy:
+    src: "files/jeelink2mqtt.code-workspace"
+    dest: "{{JEELINK2MQTT_PATH}}/"
+    owner: root
+    group: root
+    mode: 0555
+    force: no
+  when: ENABLE_JEELINK2MQTT
+  tags:
+    - jeelink2mqtt
+
+- name: Create systemd files for jeelink2mqtt
+  template:
+    src: "etc/systemd/system/jeelink2mqtt.service.j2"
+    dest: "/etc/systemd/system/{{ JEELINK2MQTT_SERVICE }}"
+    owner: "root"
+    group: "root"
+    mode: "0644"
+  when: ENABLE_JEELINK2MQTT
+  tags:
+    - jeelink2mqtt
+    - jeelink2mqtt_systemd
+
+- name: Restart jeelink2mqtt
+  systemd:
+    name: "{{ JEELINK2MQTT_SERVICE }}"
+    state: restarted
+    enabled: yes
+    masked: no
+    daemon_reload: yes
+  register: jeelink2mqtt_reload
+  when: ENABLE_JEELINK2MQTT
+  tags:
+    - jeelink2mqtt
+

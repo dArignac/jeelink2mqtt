@@ -1,0 +1,26 @@
+# {{ ansible_managed }}
+
+version: '3.3'
+
+services:
+  jeelink2mqtt:
+    hostname: jeelink2mqtt
+    build: .
+    restart: unless-stopped
+    privileged: true
+    volumes:
+      - {{ JEELINK2MQTT_STACK }}/config.ini:/etc/jeelink2mqtt.ini
+      - /etc/localtime:/etc/localtime:ro
+    dns: {{DNS_SERVER}}
+    dns_search: {{DNS_SEARCH}}
+    environment:
+      - TZ={{TZ}}
+    devices:
+      # Make sure this matched your adapter location
+      - {{ JEELINK2MQTT_DEVICE }}:/dev/ttyUSB0
+    group_add:
+      - dialout
+      - tty
+    ports:
+     - {{JEELINK2MQTT_PORT}}:80
+

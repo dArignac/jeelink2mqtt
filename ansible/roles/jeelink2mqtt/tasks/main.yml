@@ -1,0 +1,9 @@
+---
+- name: Install jeelink2mqtt
+  include_tasks:
+    file: install.yml
+  when: ENABLE_JEELINK2MQTT
+  tags:
+    - jeelink2mqtt
+    - j2m_docker
+    - jeelink2mqtt_git
