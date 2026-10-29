@@ -21,3 +21,7 @@ id=36
 ## Run
 
 Run with `uv run jeelink2mqtt.py -c config.ini`.
+
+## Test
+
+Run with `uv run python -m unittest discover tests`.
