@@ -22,7 +22,7 @@ class LaCrosse:
             log.debug(f"LaCrosse: Receiver is {str(values[0])}")
             return
 
-        if values[0] != b"OK" or values[1] != b"9":
+        if len(values) < 2 or values[0] != b"OK" or values[1] != b"9":
             log.debug(f"LaCrosse: Unknown message received {message}")
             return
 

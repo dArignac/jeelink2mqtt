@@ -17,6 +17,9 @@ sensors = {}
 sensors_whitelist = {}
 
 
+log = logging.getLogger("jeelink2mqtt")
+
+
 def mqtt_on_connect(client, userdata, connect_flags, reason_code, properties):
     if reason_code == 0:
         log.info("MQTT: Connected successfully to the MQTT broker")
@@ -32,7 +35,7 @@ def mqtt_on_log(client, userdata, level, buf):
     log.debug(f"MQTT: Message {buf}")
 
 
-if __name__ == "__main__":
+def main():
     # cli arguments
     parser = argparse.ArgumentParser(
         prog="Jeelink2MQTT",
@@ -79,7 +82,6 @@ if __name__ == "__main__":
         sensors_whitelist[int(config[sensor_name]["id"])] = sensor_name
 
     # logging
-    log = logging.getLogger("jeelink2mqtt")
     log.setLevel("DEBUG" if args.debug else "INFO")
     sh = logging.StreamHandler(sys.stdout)
     sh.setFormatter(logging.Formatter("%(asctime)s %(levelname)7s: %(message)s"))
@@ -109,3 +111,7 @@ if __name__ == "__main__":
         mqtt.disconnect()
         time.sleep(2)
         print("Terminated")
+
+
+if __name__ == "__main__":
+    main()
